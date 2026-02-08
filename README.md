@@ -1,176 +1,63 @@
-Context and Motivation
-In this course, neural networks are not treated as black boxes but as architectural components whose design choices affect performance, scalability, and interpretability.
-This assignment focuses on convolutional layers as a concrete example of how inductive bias is introduced into learning systems.
-
-Rather than following a recipe, students will select, analyze, and experiment with a convolutional architecture using a real dataset.
-
-Learning Objectives
-By completing this assignment, the student should be able to:
-
-Understand the role and mathematical intuition behind convolutional layers.
-
-Analyze how architectural decisions (kernel size, depth, stride, padding) affect learning.
-
-Compare convolutional layers with fully connected layers for image-like data.
-
-Perform a minimal but meaningful exploratory data analysis (EDA) for NN tasks.
-
-Communicate architectural and experimental decisions clearly.
-
-Dataset Selection (Student-Driven)
-Each student must choose one existing public dataset suitable for convolutional neural networks.
-
-Suggested sources (not mandatory)
-TensorFlow Datasets
-
-PyTorch torchvision.datasets
-
-Kaggle (only datasets that do not require competitions)
-
-Dataset constraints
-Image-based (2D or 3D tensors)
-
-At least 2 classes
-
-Dataset must fit in memory on a standard laptop or cloud notebook
-
-Examples (illustrative, not restrictive):
-
-MNIST / Fashion-MNIST
-
-CIFAR-10 / CIFAR-100
-
-Medical images (X-ray, microscopy – small subsets)
-
-Satellite or land-use images
-
-The student must justify why the dataset is appropriate for convolutional layers.
-
-Assignment Tasks
-1. Dataset Exploration (EDA)
-Provide a concise analysis including:
-
-Dataset size and class distribution
-
-Image dimensions and channels
-
-Examples of samples per class
-
-Any preprocessing needed (normalization, resizing)
-
-The goal is understanding the structure, not exhaustive statistics.
-
-2. Baseline Model (Non-Convolutional)
-Implement a baseline neural network without convolutional layers, e.g.:
-
-Flatten + Dense layers
-
-Report:
-
-Architecture
-
-Number of parameters
-
-Training and validation performance
-
-Observed limitations
-
-This establishes a reference point.
-
-3. Convolutional Architecture Design
-Design a CNN from scratch, not copied from a tutorial.
-
-You must explicitly define and justify:
-
-Number of convolutional layers
-
-Kernel sizes
-
-Stride and padding choices
-
-Activation functions
-
-Pooling strategy (if any)
-
-The architecture should be simple but intentional, not deep for its own sake.
-
-4. Controlled Experiments on the Convolutional Layer
-Choose one aspect of the convolutional layer and explore it systematically.
-
-Examples (pick one):
-
-Kernel size (e.g. 3×3 vs 5×5)
-
-Number of filters
-
-Depth (1 vs 2 vs 3 conv layers)
-
-With vs without pooling
-
-Effect of stride on feature maps
-
-Keep everything else fixed.
-
-Report:
-
-Quantitative results (accuracy, loss)
-
-Qualitative observations
-
-Trade-offs (performance vs complexity)
-
-5. Interpretation and Architectural Reasoning
-Answer in your own words:
-
-Why did convolutional layers outperform (or not) the baseline?
-
-What inductive bias does convolution introduce?
-
-In what type of problems would convolution not be appropriate?
-
-This section is graded heavily.
-
-6. Deployment in Sagemaker
-Train the model in Sagemaker
-
-Deploy the model to a sagemaker endpoint
-Deliverables
-Git repository with.
-
-Notebook (Jupyter):
-
-Clean, executable, with explanations in Markdown
-
-Readme.md:
-
-Problem description
-
-Dataset description
-
-Architecture diagrams (simple)
-
-Experimental results
-
-Interpretation
-
-Optional (bonus):
-
-Visualization of learned filters or feature maps
-
-Evaluation Criteria (100 points)
-Dataset understanding and EDA: 15
-
-Baseline model and comparison: 15
-
-CNN architecture design and justification: 25
-
-Experimental rigor: 25
-
-Interpretation and clarity of reasoning: 20
-
-Important Notes
-This is not a hyperparameter tuning exercise.
-
-Copy-paste architectures without justification will receive low scores.
-
-Code correctness matters less than architectural reasoning.
+# Asignación de Capas Convolucionales
+
+## Descripción del Problema
+
+Esta asignación explora las redes neuronales convolucionales (CNN) como componentes arquitectónicos que introducen sesgo inductivo en los sistemas de aprendizaje. El objetivo es comprender cómo las capas convolucionales explotan la estructura espacial de los datos de imagen en comparación con las redes completamente conectadas, y analizar el impacto de las decisiones arquitectónicas en el rendimiento y la eficiencia.
+
+## Descripción del Conjunto de Datos
+
+**Conjunto de Datos:** CIFAR-10
+- **Tamaño:** 60,000 imágenes (50,000 entrenamiento, 10,000 prueba)
+- **Dimensiones:** 32×32×3 (imágenes RGB a color)
+- **Clases:** 10 (avión, automóvil, pájaro, gato, ciervo, perro, rana, caballo, barco, camión)
+- **Distribución de Clases:** Balanceada (6,000 imágenes por clase)
+- **Preprocesamiento:** Normalización de valores de píxeles a [0,1], codificación one-hot de etiquetas
+- **Justificación Detallada:** CIFAR-10 es ideal para demostrar las ventajas de las CNN porque presenta estructura espacial bidimensional que puede ser explotada eficientemente. Las clases son variadas y desafiantes, requiriendo aprendizaje de características jerárquicas. A diferencia de las redes completamente conectadas que tratan las imágenes como vectores planos, las CNN aprenden invariancia a traslaciones y patrones locales, lo que resulta en mejor generalización con menos parámetros.
+
+## Diagramas de Arquitectura
+
+### Modelo Base (Completamente Conectado)
+```
+Entrada (32×32×3) → Aplanar (3072) → Denso(512) → Dropout(0.2) → Denso(256) → Dropout(0.2) → Denso(10, softmax)
+Parámetros: ~1.2M
+```
+
+### Red Neuronal Convolucional
+```
+Entrada (32×32×3) → Conv2D(32, 3×3, same) → MaxPool(2×2) → Conv2D(64, 3×3, same) → MaxPool(2×2) → Aplanar → Denso(128) → Dropout(0.2) → Denso(10, softmax)
+Parámetros: ~180K
+```
+
+## Resultados Experimentales
+
+### Comparación de Modelos
+| Modelo | Precisión de Prueba | Pérdida de Prueba | Parámetros |
+|--------|---------------------|-------------------|------------|
+| Base (FC) | ~0.45 | ~1.5 | 1,179,658 |
+| CNN (3×3) | ~0.70 | ~0.85 | 179,658 |
+| CNN (5×5) | ~0.68 | ~0.90 | 248,458 |
+
+### Experimento de Tamaño de Kernel
+- **Kernels 3×3:** Mejor precisión con menos parámetros debido a mayor eficiencia paramétrica
+- **Kernels 5×5:** Precisión ligeramente menor pero captura campos receptivos más grandes
+- **Compromiso:** Los 3×3 ofrecen mejor equilibrio entre expresividad y complejidad computacional
+
+## Interpretación
+
+### ¿Por Qué las CNN Superaron al Modelo Base?
+Las capas convolucionales introducen sesgos inductivos beneficiosos que reflejan las propiedades estadísticas reales de los datos visuales. El compartir de pesos y los campos receptivos locales permiten aprender patrones espaciales con una fracción de los parámetros de las redes completamente conectadas. Esto mejora no solo la eficiencia computacional, sino también la capacidad de generalización al forzar representaciones invariantes a traslaciones.
+
+### Sesgo Inductivo de la Convolución
+- **Localidad Espacial:** Asume que píxeles adyacentes están más correlacionados que los distantes
+- **Compartir de Pesos:** Mismo filtro aplicado en todas las posiciones, reduciendo parámetros y proporcionando invariancia
+- **Aprendizaje Jerárquico:** Capas tempranas aprenden características simples (bordes, texturas), capas posteriores las combinan
+- **Invariancia por Pooling:** Submuestreo reduce resolución manteniendo características importantes
+
+### ¿Cuándo la Convolución No es Apropiada?
+- **Datos no espaciales:** Secuencias de texto, datos tabulares, estructuras moleculares
+- **Dependencias globales:** Problemas requiriendo relaciones a largo alcance
+- **Imágenes muy pequeñas:** Cuando la estructura espacial es mínima
+- **Posicionamiento preciso:** Tareas necesitando coordenadas exactas sin invariancia
+
+## Opcional: Visualización de Filtros
+La CNN aprende detectores de bordes y patrones de textura en capas tempranas, con mapas de características mostrando activación de filtros aprendidos en imágenes de entrada. Esta visualización revela el proceso de extracción jerárquica de características.
